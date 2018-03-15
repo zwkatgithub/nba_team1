@@ -7,7 +7,10 @@ from bs4 import BeautifulSoup
 def getPlayerList(url):
     request = requests.get(url)
     data = request.text[17,-1]
-    for item in data['data']:
+    str = []
+    for item in data['data']['players']:
+        if item[3]==1:
+            str.append('http://stats.nba.com/player/'+item[0])
 
 
 
