@@ -1,4 +1,4 @@
-import re
+import json
 import requests
 import pymysql
 from bs4 import BeautifulSoup
@@ -6,15 +6,12 @@ from bs4 import BeautifulSoup
 
 def getPlayerList(url):
     request = requests.get(url)
-    data = request.text[17,-1]
-    str = []
-    for item in data['data']['players']:
-        if item[3]==1:
-            str.append('http://stats.nba.com/player/'+item[0])
-
-
-
-    return soup.
+    data = request.text[17:-1]
+    players = []
+    for item in json.loads(data)['data']['players']:
+        if item[2]==1:
+            players.append('http://stats.nba.com/player/'+str(item[0]))
+    return players
 
 
 def searchDetails(url):
