@@ -1,4 +1,7 @@
 from uscarp import *
+import json
+from bs4 import BeautifulSoup
+
 
 def getPlayerList(url):
     data = getHtml(url)[17:-1]
@@ -10,7 +13,11 @@ def getPlayerList(url):
 
 
 def searchDetails(url):
-
+    soup = BeautifulSoup(getDHtml(url),'lxml')
+    spans = soup.select('span.player-stats__stat-value')
+    infos = [span.get_text() for span in spans]
+    print(infos)
+    # summary = {'height':infos[4],'weight':infos[5],
     pass;
 
 

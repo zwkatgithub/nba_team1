@@ -1,13 +1,22 @@
-import json
 import requests
 import pymysql
-from bs4 import BeautifulSoup
+from selenium import webdriver
 
 
 def getHtml(url, code='utf-8'):
     res = requests.get(url,timeout=20)
     res.encoding = code
     return res.text
+
+
+def getDHtml(url):
+    option = webdriver.ChromeOptions()
+    option.set_headless()
+    driver = webdriver.Chrome(options=option)
+    driver.get(url)
+    res = driver.page_source
+    driver.close()
+    return res
 
 
 class sMysql:
