@@ -3,6 +3,7 @@ import pymysql
 from selenium import webdriver
 
 
+
 def getHtml(url, code='utf-8'):
     res = requests.get(url,timeout=20)
     res.encoding = code
@@ -13,8 +14,15 @@ def getDHtml(url):
     option = webdriver.ChromeOptions()
     option.set_headless()
     driver = webdriver.Chrome(options=option)
-    driver.get(url)
-    res = driver.page_source
+    driver.set_page_load_timeout(20)
+    try:
+        driver.get(url)
+    except:
+        pass
+    try:
+        res = driver.page_source
+    except:
+        res = None
     driver.close()
     return res
 
