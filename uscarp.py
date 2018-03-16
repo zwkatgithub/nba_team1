@@ -1,30 +1,38 @@
+import json
+import re
 import requests
 import pymysql
 from selenium import webdriver
+from bs4 import BeautifulSoup
 
 
 
-def getHtml(url, code='utf-8'):
-    res = requests.get(url,timeout=20)
+def getHtml(url, code='utf-8',timeout=30):
+    res = requests.get(url, timeout=timeout)
     res.encoding = code
     return res.text
 
 
-def getDHtml(url):
-    option = webdriver.ChromeOptions()
-    option.set_headless()
-    driver = webdriver.Chrome(options=option)
-    driver.set_page_load_timeout(20)
-    try:
-        driver.get(url)
-    except:
-        pass
-    try:
-        res = driver.page_source
-    except:
-        res = None
-    driver.close()
-    return res
+class dHtml:
+    def __init__(self, timeout=20):
+        option = webdriver.ChromeOptions()
+        option.set_headless()
+        self.driver = webdriver.Chrome(options=option)
+        self.driver.set_page_load_timeout(timeout)
+
+    def get(self,url):
+        try:
+            self.driver.get(url)
+        except:
+            pass
+        try:
+            return self.driver.page_source
+        except:
+            return None
+
+    def __del__(self):
+        self.driver.close()
+
 
 
 class sMysql:
@@ -37,15 +45,16 @@ class sMysql:
         self.cur = self.db.cursor()
         print("connected to %s@%s use %s!"%(user,host,schema))
 
-    def excute(self,sql,commit=False):
+    def excute(self,sql):
         self.cur.execute(sql)
-        if commit:
-            try:
-                self.db.commit()
-                print("successfully commit!")
-            except:
-                print("! cannot commit")
-                self.db.rollback()
+
+    def commit(self):
+        try:
+            self.db.commit()
+            print("successfully commit!")
+        except:
+            print("! cannot commit")
+            self.db.rollback()
 
     def content(self,all=True):
         try :
@@ -57,6 +66,7 @@ class sMysql:
             print("can't get content")
 
     def __del__(self):
+        # self.commit()
         self.cur.close()
         self.db.close()
         print("!close connection to %s@%s"%(self.db.user,self.db.host))

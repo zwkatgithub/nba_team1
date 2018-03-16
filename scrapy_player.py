@@ -1,6 +1,4 @@
 from uscarp import *
-import json
-from bs4 import BeautifulSoup
 
 
 def getPlayerList(url):
@@ -13,17 +11,32 @@ def getPlayerList(url):
 
 
 def searchDetails(url):
-    soup = BeautifulSoup(getDHtml(url),'lxml')
-    spans = soup.select('span.player-stats__stat-value')
-    infos = [span.get_text() for span in spans]
-    print(infos)
-    # summary = {'height':infos[4],'weight':infos[5],
-    pass;
+    pattern = re.compile(r'window.nbaStatsPlayerInfo = (.+?);')
+    info = pattern.search(getHtml(url)).group(1)
+    info = json.loads(info)
+    summary = {'id':info['PERSON_ID'],'height':info['HEIGHT'],'weight':info['WEIGHT'],'name':info['FIRST_NAME']+' '+info['LAST_NAME'],
+               'team_id':info['TEAM_ID'],'pos':info['POSITION_INITIALS'],'birthdate':info['BIRTHDATE'],'country':info['COUNTRY'],
+               'school':info['SCHOOL']}
+    return summary
 
 
 def saveToMysql(cursor,info):
-
-    pass;
+    first = 'INSERT INTO player_info('
+    second = ') VALUES('
+    for key in info:
+        if key !='id':
+            first += ','
+            second += ','
+        first += key
+        if isinstance(info[key],str):
+            second += '\''+str(info[key])+'\''
+        else :
+            if info[key] == None:
+                info[key] = 'null'
+            second += str(info[key])
+    sql = first+second+');'
+    print(sql)
+    cursor.execute(sql,True)
 
 
 def main():
