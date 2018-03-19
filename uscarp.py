@@ -36,37 +36,29 @@ def getHtml(url, code='utf-8', timeout=15):
 
 
 def saveToMysql(db, table, info):   #By Dict
-    first = 'INSERT INTO %s('%table
-    second = ') VALUES('
+    header =[]
+    value =[]
     for key in info:
-        first += key+','
-        if isinstance(info[key],str):
-            second += '\"'+str(info[key])+'\",'
-        else :
-            if info[key] == None:
-                info[key] = 'null'
-            second += str(info[key])+','
-    sql = first[:-1]+second[:-1]+');'
-    # print(sql)
-    db.execute(sql)
+        header.append(key)
+        value.append(info[key])
+    saveToMysqlByList(db,table,header,value)
 
 
 def saveToMysqlByList(db, table, headers, values):
-    sql = 'INSERT INTO %s('%table
-    for header in headers:
-        sql +=header+','
-    sql =sql[:-1]+') VALUES('
-    for value in values:
+    sql = ('INSERT INTO %s('%table) + ','.join(headers)+')'
+    convertToSql(values)
+    sql += ' VALUES(' + ','.join(values) + ');'
+    print(sql)
+    db.execute(sql)
+
+def convertToSql(values):
+    for i,value in enumerate(values):
         if isinstance(value, str):
-            sql += '\"'+str(value)+'\",'
+            values[i] = '\"'+value+'\"'
         else :
             if value == None:
                 value = 'null'
-            sql += str(value)+','
-    sql = sql[:-1]+');'
-    # print(sql)
-    db.execute(sql)
-
+            values[i] = str(value)
 
 class dHtml:
     def __init__(self, timeout=20):
